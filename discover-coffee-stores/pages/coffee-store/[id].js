@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 
 import coffeeStoresData from "../../data/coffee-stores.json";
 
@@ -18,12 +19,15 @@ export function getStaticProps(staticProps) {
 // This code runs on the server
 // Provide path
 export function getStaticPaths() {
+  const paths = coffeeStoresData.map((coffeeStore) => {
+    return {
+      params: {
+        id: coffeeStore.id.toString(),
+      },
+    };
+  });
   return {
-    paths: [
-      { params: { id: "0" } },
-      { params: { id: "1" } },
-      { params: { id: "300" } },
-    ],
+    paths,
     fallback: true,
     // fallback => false
     // - connect to 404 page
@@ -36,23 +40,27 @@ export function getStaticPaths() {
 
 const CoffeeStore = (props) => {
   console.log(props);
+
+  // router.query.id
   const router = useRouter();
 
   if (router.isFallback) {
     return <div>Loading...</div>;
   }
 
+  const { address, name, neighbourhood } = props.coffeeStore;
+
   return (
     <div>
-      Coffee Store Page {router.query.id}
+      <Head>
+        <title>{name}</title>
+      </Head>
       <Link href="/" scroll={false} prefetch>
         <a>Back to home</a>
       </Link>
-      <Link href="/coffee-store/anything">
-        <a>Go to page dynmaic</a>
-      </Link>
-      <p>{props.coffeeStore.address}</p>
-      <p>{props.coffeeStore.name}</p>
+      <p>{address}</p>
+      <p>{name}</p>
+      <p>{neighbourhood}</p>
     </div>
   );
 };
